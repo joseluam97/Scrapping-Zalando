@@ -1,0 +1,78 @@
+<div class="row">
+    <div class="col-lg-12 col-sm-12">
+        <mat-card class="example-card">
+            <mat-card-header>
+                <mat-card-title-group>
+                    <mat-card-title>{{zapatoSelect.name}}</mat-card-title>
+                    <mat-card-subtitle>
+                        {{zapatoSelect.brand}}
+                    </mat-card-subtitle>
+                    <mat-card-subtitle>
+                        <button mat-button>
+                            <a href={{zapatoSelect.link}} mat-raised-button color="primary">Visitar Zalando</a>
+                        </button>
+                    </mat-card-subtitle>
+                    
+                    <img class="image-card" mat-card-image src={{zapatoSelect.imagen}} alt="Zapato">
+                </mat-card-title-group>
+            </mat-card-header>
+
+        </mat-card>
+
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-3 col-sm-12">
+        <mat-card class="custom-card-red">
+            <mat-card-content class="card-content">
+                <div class="number">{{precioMasAlto}} €</div>
+                <div class="title">Precio mas alto</div>
+            </mat-card-content>
+        </mat-card>
+    </div>
+
+    <div class="col-lg-3 col-sm-12">
+        <mat-card class="custom-card-green">
+            <mat-card-content class="card-content">
+                <div class="number">{{precioMasBajo}} €</div>
+                <div class="title">Precio mas bajo</div>
+            </mat-card-content>
+        </mat-card>
+    </div>
+
+    <div class="col-lg-3 col-sm-12">
+        <mat-card class="custom-card-blue">
+            <mat-card-content class="card-content">
+                <div class="number">{{precioMedio.toFixed(2)}} €</div>
+                <div class="title">Precio medio</div>
+            </mat-card-content>
+        </mat-card>
+    </div>
+
+    <div class="col-lg-3 col-sm-12">
+        <mat-card class="custom-card-blue">
+            <mat-card-content class="card-content">
+                <div class="number">{{nRegistros}}</div>
+                <div class="title">Registros de precios</div>
+            </mat-card-content>
+        </mat-card>
+    </div>
+</div>
+
+<div class="row">
+
+    <!-- column -->
+    <div class="col-lg-6 col-sm-12">
+        <app-listado-precios></app-listado-precios>
+    </div>
+    <!-- column -->
+
+    <!-- column -->
+    <div class="col-lg-6 col-sm-12">
+        <app-grafico-precios></app-grafico-precios>
+    </div>
+    <!-- column -->
+
+
+</div>
