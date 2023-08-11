@@ -25,7 +25,40 @@ historicoPreciosCtrl.getPricesByProduct = async(req, res) => {
 	}
 };
 
-historicoPreciosCtrl.postHistoricoPrecios = async(req, res) => {
+historicoPreciosCtrl.postHistoricoPrecios = async (req, res) => {
+  const { idProducto, price } = req.body;
+
+  try {
+    // Verificar si existe un precio con la misma fecha y el mismo price
+    const existingPrice = await HistoricoPrecios.findOne({
+      idProducto,
+      price,
+      date: {
+        $gte: new Date(new Date().setHours(0, 0, 0)), // Fecha de inicio del día actual
+        $lt: new Date(new Date().setHours(23, 59, 59)), // Fecha de fin del día actual
+      },
+    });
+
+    if (existingPrice) {
+      res.status(400).json({ message: "El precio no ha cambiado" });
+      return;
+    }
+
+    const historicoPrecios = new HistoricoPrecios({
+      idProducto,
+      price,
+      date: new Date(),
+    });
+
+    const newHistoricoPrecios = await historicoPrecios.save();
+    res.status(201).json(newHistoricoPrecios);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: err.message });
+  }
+};
+
+/*historicoPreciosCtrl.postHistoricoPrecios = async(req, res) => {z
   console.log(req.body);
   const historicoPrecios = new HistoricoPrecios({
     idProducto: req.body.idProducto,
@@ -39,7 +72,7 @@ historicoPreciosCtrl.postHistoricoPrecios = async(req, res) => {
       console.log(err);
       res.json({message: err.message});
   }
-};
+};*/
 
 historicoPreciosCtrl.putHistoricoPrecios = async (req, res) => {
   try {

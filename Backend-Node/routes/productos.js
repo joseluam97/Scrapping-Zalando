@@ -5,14 +5,6 @@ const router = express.Router();
 const Productos = require('../models/Producto');
 const producto = require("../controllers/productos.controller");
 
-
-router.get("/:id", function (req, res) {
-  const { id } = req.params;
-  Productos.findById(id, {}, function (err, producto) {
-    res.status(200).send(producto);
-  });
-});
-
 router.post("/byName", function (req, res) {
   const nameParams = req.body.name;
   //const linkParams = req.body.link;
@@ -26,16 +18,12 @@ router.post("/byName", function (req, res) {
   });
 });
 
+router.get('/', producto.getAllProduct);
+router.get('/:id', producto.getProductoById);
 router.post('/', producto.postProducto);
 router.put("/:id", producto.putProducto);
 router.post('/allBrand', producto.getAllBrand);
-
-router.get("/", function (req, res) {
-  Productos.find({}, function (err, producto) {
-    res.status(200).send(producto);
-  });
-});
-
+router.post('/getBestOffertByBrand', producto.getBestOffertByBrand);
 
 router.delete("/:id", function (req, res) {
   const { id } = req.params;

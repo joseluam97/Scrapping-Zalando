@@ -33,9 +33,7 @@ WEBHOOKS = [
     'https://discord.com/api/webhooks/1111330702353518683/A-1GbjNAXqvdGnCLflrS-zuvNha1Jyoavwc2TSrNca5WuTNhAhCmkoa-nzqLFXIKIGMJ',
 ]
 
-#LINK = 'https://www.zalando.es/calzado-hombre/nike_amarillo.lila.verde/?order=price&dir=asc'
-#LINK = 'https://www.zalando.es/calzado-hombre/nike_amarillo.beige.lila.verde/'
-#LINK = 'https://www.zalando.es/calzado-hombre/adidas.nike/'
+#LINK = 'https://www.zalando.es/hombre/?q=AIR+MAX+90'
 LINK = 'https://www.zalando.es/calzado-hombre/'
 
 COUNTRY_LINKS = {
@@ -261,7 +259,9 @@ def filter_json(content):
             link_cadena = link['href']
 
             if price_cadena.find("desde") != -1:
-                print("Precio no valido")
+                #print("Precio no valido")
+                cadPrecioNoValido = "PRECIO NO VALIDO: " + "\n Nombre: " + name_cadena + "\n Precio: " + price_cadena + "\n Link: " + link_cadena
+                send_last_line(cadPrecioNoValido)
             else:
                 elemento = {
                     "name": name_cadena,
@@ -282,7 +282,7 @@ def filter_json(content):
 
 def post_price(dato_zapato, price_cadena):
     cadena_sin_simbolo = price_cadena.replace("€", "").replace("\xa0", "")
-    price = float(cadena_sin_simbolo.replace(",", "."))
+    price = float(cadena_sin_simbolo.replace(".", "").replace(",", "."))
     # URL del endpoint donde realizarás la solicitud POST
     url = "http://localhost:3100/prices"
 
@@ -297,10 +297,10 @@ def post_price(dato_zapato, price_cadena):
 
     # Verificar la respuesta
     if response.status_code == 200:
-        print("Registro del precio de manera existosa")
+        #print("Registro del precio de manera existosa")
         send_last_line("Se ha registrado un nuevo precio para el zapato: " + dato_zapato["name"] + ", el cual ha sido: "+ str(price))
     else:
-        print("!ERROR¡")
+        #print("!ERROR¡")
         send_last_line("ERROR en el registro del precio del zapato: " + dato_zapato["name"] + ", con el precio: "+ str(price))
 
 def post_or_get_zapato(elemento):
@@ -333,7 +333,7 @@ def add_element_BD(elemento):
 
     # Verificar la respuesta
     if response.status_code == 200:
-        print("Producto creado exitosamente.")
+        #print("Producto creado exitosamente.")
         send_last_line("Se ha registrado un nuevo zapato: " + elemento["name"])
         return response.json()
     else:
@@ -413,8 +413,10 @@ def print_hello():
     elementos_totales = 0
     country = 'IT'
     last_page = get_num_max_page()
+    total_elementos = last_page * 80
 
     for i in range(1, last_page+1):
+        print("Procesando pagina " + str(i) + "...")
         url_page = LINK + '?p=' + str(i)
         data_page = obtener_codigo_html(url_page)
 
@@ -425,6 +427,9 @@ def print_hello():
         articulos_data = articulos_data + articles
 
         elementos_totales = elementos_totales + len(articles)
+
+        procesados_actual = i * 80
+        print("Procesados: " + str(procesados_actual) + "/" + str(total_elementos))
 
     #Enviar mensaje separador
     send_last_line("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")

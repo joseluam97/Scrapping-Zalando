@@ -7,6 +7,16 @@
                     <mat-card-subtitle>
                         {{zapatoSelect.brand}}
                     </mat-card-subtitle>
+
+                    <mat-card-subtitle>
+                        <div>
+                            <h4>
+                                {{zapatoSelect.precio_actual}}€ <small class="text-muted">{{zapatoSelect.diferencia_porcentual}}%</small>
+                            </h4>
+                        </div>
+                        
+                    </mat-card-subtitle>
+
                     <mat-card-subtitle>
                         <button mat-button>
                             <a href={{zapatoSelect.link}} mat-raised-button color="primary">Visitar Zalando</a>
@@ -23,6 +33,7 @@
 </div>
 
 <div class="row">
+    
     <div class="col-lg-3 col-sm-12">
         <mat-card class="custom-card-red">
             <mat-card-content class="card-content">
