@@ -17,6 +17,8 @@ import requests
 
 colorama.init()
 
+
+
 REQUESTS_MANAGER = cfscrape.CloudflareScraper()
 GET = REQUESTS_MANAGER.get
 POST = REQUESTS_MANAGER.post
