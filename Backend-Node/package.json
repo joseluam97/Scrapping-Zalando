@@ -4,7 +4,8 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js"
+    "start": "node app.js",
+    "build": "netlify deploy --prod"
   },
   "engines": {
     "node": "12.16.1"
@@ -21,9 +22,12 @@
     "jsonwebtoken": "^8.5.1",
     "moment": "^2.29.1",
     "mongoose": "^5.13.13",
+    "netlify-cli": "^16.1.0",
+    "netlify-lambda": "^2.0.16",
     "node-rsa": "^1.1.1",
     "nodemailer": "^6.7.1",
-    "path": "^0.12.7"
+    "path": "^0.12.7",
+    "serverless-http": "^3.2.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.15"

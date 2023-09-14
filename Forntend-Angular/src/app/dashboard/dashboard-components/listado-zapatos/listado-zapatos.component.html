@@ -65,13 +65,11 @@
                             <div>
                                 <h4>
                                     {{zapato.precio_actual}}€ <small
-                                        class="text-muted">{{zapato.diferencia_porcentual}}%</small>
+                                        class="text-muted">{{zapato.diferencia_porcentual.toFixed(2)}}%</small>
                                 </h4>
                             </div>
 
                         </mat-card-subtitle>
-
-                        <!--<img class="image-card" mat-card-image src={{zapato.imagen}} alt="Zapato">-->
 
                         <div *ngIf="showThumbnail">
                             <img class="image-card" mat-card-image (click)="showFullImage(zapato.imagen)"

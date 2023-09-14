@@ -26,6 +26,7 @@ historicoPreciosCtrl.getPricesByProduct = async(req, res) => {
 };
 
 historicoPreciosCtrl.postHistoricoPrecios = async (req, res) => {
+  console.log(req.body);
   const { idProducto, price } = req.body;
 
   try {
@@ -51,10 +52,10 @@ historicoPreciosCtrl.postHistoricoPrecios = async (req, res) => {
     });
 
     const newHistoricoPrecios = await historicoPrecios.save();
-    res.status(201).json(newHistoricoPrecios);
+    res.json(newHistoricoPrecios);
   } catch (err) {
     console.log(err);
-    res.status(500).json({ message: err.message });
+    res.json({ message: err.message });
   }
 };
 

@@ -26,6 +26,8 @@ JSON_TO_TABLE = json.loads
 TABLE_TO_JSON = json.dumps
 COLOR = colorama.Fore
 
+URL_API = "http://localhost:3100/"
+
 DISCORD_BASIC_LOGGING = False
 
 LOGGING_WEBHOOK = 'https://discord.com/api/webhooks/1111330702353518683/A-1GbjNAXqvdGnCLflrS-zuvNha1Jyoavwc2TSrNca5WuTNhAhCmkoa-nzqLFXIKIGMJ'
@@ -228,15 +230,15 @@ def filter_json(content):
     for item in product_items:
         
         # Extraer el nombre del producto
-        name = item.find("h3", class_="KxHAYs lystZ1 FxZV-M HlZ_Tf ZkIJC- r9BRio qXofat EKabf7 nBq1-s _2MyPg2")
+        name = item.find("h3", class_="sDq_FX lystZ1 FxZV-M HlZ_Tf ZkIJC- r9BRio qXofat EKabf7 nBq1-s _2MyPg2")
         
         # Extraer la marca del producto
-        brand = item.find("h3", class_="_6zR8Lt lystZ1 FxZV-M HlZ_Tf ZkIJC- r9BRio qXofat EKabf7 nBq1-s _2MyPg2")
+        brand = item.find("h3", class_="FtrEr_ lystZ1 FxZV-M HlZ_Tf ZkIJC- r9BRio qXofat EKabf7 nBq1-s _2MyPg2")
         
         # Extraer el precio del producto
         price = None
-        price1 = item.find_all("span", class_="ZiDB59 r9BRio uVxVjw")
-        price2 = item.find_all("p", class_="KxHAYs lystZ1 FxZV-M HlZ_Tf")
+        price1 = item.find_all("span", class_="sDq_FX lystZ1 FxZV-M HlZ_Tf")
+        price2 = item.find_all("p", class_="sDq_FX lystZ1 dgII7d Km7l2y")
         price3 = item.find_all("span", class_="KxHAYs lystZ1 dgII7d Km7l2y")
 
         if price1 != None and len(price1) == 1:
@@ -247,7 +249,7 @@ def filter_json(content):
             price = price3[0]
 
         # Extraer el link de la imagen del producto
-        imagen = item.find("img", class_="KxHAYs lystZ1 FxZV-M _2Pvyxl JT3_zV EKabf7 mo6ZnF _1RurXL mo6ZnF _7ZONEy")
+        imagen = item.find("img", class_="sDq_FX lystZ1 FxZV-M _2Pvyxl JT3_zV EKabf7 mo6ZnF _1RurXL mo6ZnF _7ZONEy")
 
         # Extraer el link del producto
         link = item.find("a", class_="_LM JT3_zV CKDt_l CKDt_l LyRfpJ")
@@ -286,7 +288,7 @@ def post_price(dato_zapato, price_cadena):
     cadena_sin_simbolo = price_cadena.replace("€", "").replace("\xa0", "")
     price = float(cadena_sin_simbolo.replace(".", "").replace(",", "."))
     # URL del endpoint donde realizarás la solicitud POST
-    url = "http://localhost:3100/prices"
+    url = URL_API + "prices"
 
     #Creacion del json
     newPrice = {
@@ -307,7 +309,7 @@ def post_price(dato_zapato, price_cadena):
 
 def post_or_get_zapato(elemento):
     # URL del endpoint donde realizarás la solicitud POST
-    url = "http://localhost:3100/productos/byName/"
+    url = URL_API + "productos/byName/"
 
     # Realizar la solicitud POST para comprobar la existencia del elemento
     response = requests.post(url, json={"name": elemento["name"]})
@@ -328,7 +330,7 @@ def post_or_get_zapato(elemento):
 
 def add_element_BD(elemento):
     # URL del endpoint donde realizarás la solicitud POST
-    url = "http://localhost:3100/productos"
+    url = URL_API + "productos"
 
     # Realizar la solicitud POST
     response = requests.post(url, json=elemento)
@@ -396,7 +398,7 @@ def get_num_max_page():
         soup = BeautifulSoup(contenido, "html.parser")
 
         # Extraer la cadena de paginas
-        pages = soup.find("span", class_="KxHAYs _2kjxJ6 FxZV-M HlZ_Tf JCuRr_ _0xLoFW uEg2FS FCIprz")
+        pages = soup.find("span", class_="sDq_FX _2kjxJ6 FxZV-M HlZ_Tf JCuRr_ _0xLoFW uEg2FS FCIprz")
 
         cad_pages = pages.text.strip()
 

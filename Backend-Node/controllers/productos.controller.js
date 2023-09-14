@@ -4,77 +4,10 @@ const Precios = require("../models/HistoricoPrecios");
 const { ObjectId } = require('mongodb');
 
 const productoCtrl = {};
-/*
-productoCtrl.getProducto = async (req, res) => {
-  const citas = await Citas.find();
-  res.json(citas);
-};
-*/
-productoCtrl.getProductoById = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const producto = await Productos.findById(id);
-
-    const pipeline = [
-      {
-        $match: {
-          idProducto: ObjectId(id) // Reemplaza esto con el ID del producto que estás buscando
-        }
-      },
-      {
-        $sort: {
-          date: -1
-        }
-      },
-      {
-        $group: {
-          _id: "$idProducto",
-          precio_actual: {
-            $first: "$price"
-          },
-          precios: {
-            $push: "$price"
-          }
-        }
-      }
-    ];
-
-    const preciosAggregados = await Precios.aggregate(pipeline);
-
-    const precio_medio = preciosAggregados.length > 0
-      ? parseFloat((preciosAggregados[0].precios.reduce((acc, curr) => acc + curr, 0) / preciosAggregados[0].precios.length).toFixed(2))
-      : 0;
-
-    const precio_actual = preciosAggregados.length > 0 ? preciosAggregados[0].precio_actual : 0
-
-    const diferencia_porcentual = -1 * (((precio_medio * 100) / precio_actual) - 100);
-
-    const productoConPrecios = {
-      ...producto._doc,
-      precio_actual,
-      precio_medio,
-      diferencia_porcentual: parseFloat(diferencia_porcentual.toFixed(2)),
-    };
-
-    res.status(200).send(productoConPrecios);
-  } catch (error) {
-    console.error('Error:', error);
-    res.status(500).send('Internal Server Error');
-  }
-};
+const marcasFiltradas = ["Nike", "Adidas", "Vans", "Converse", "New Balance", "Puma", "Jordan"];
 
 productoCtrl.getBestOffertByBrand = async (req, res) => {
   const { brand } = req.body
-
-  /*Productos.find({ brand: brand }, function (err, producto) {
-    if (err) {
-      console.error('Error al obtener los productos:', err);
-      res.status(500).json({ error: 'Error al obtener los productos' });
-    } else {
-      res.status(200).json(producto);
-    }
-  });*/
 
   const productsFilter = await Productos.find({ brand: brand });
   vectorResultado = []
@@ -114,20 +47,11 @@ productoCtrl.getBestOffertByBrand = async (req, res) => {
 
 productoCtrl.getAllBrand = async (req, res) => {
 
-  const allProduct = await Productos.find({})
+  const marcasUnicas = await Productos.distinct("brand", {
+    brand: { $regex: new RegExp(marcasFiltradas.join("|"), "i") }
+  });
 
-  // Utilizar un Set para almacenar marcas únicas
-  const uniqueBrandsSet = new Set();
-
-  // Recorrer el vector de objetos JSON y agregar las marcas únicas al Set
-  for (const obj of allProduct) {
-    uniqueBrandsSet.add(obj.brand);
-  }
-
-  // Convertir el Set en un array de marcas únicas
-  const uniqueBrandsArray = Array.from(uniqueBrandsSet);
-
-  res.json(uniqueBrandsArray);
+  res.status(200).send(marcasUnicas);
 
 };
 
@@ -173,44 +97,144 @@ productoCtrl.putProducto = async (req, res) => {
   }
 };
 
+productoCtrl.getProductoById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const producto = await Productos.findById(id);
+
+    const pipeline = [
+      {
+        $match: {
+          idProducto: ObjectId(id)
+        }
+      },
+      {
+        $sort: {
+          date: -1
+        }
+      },
+      {
+        $group: {
+          _id: "$idProducto",
+          precio_actual: {
+            $first: "$price"
+          },
+          precios: {
+            $push: "$price"
+          }
+        }
+      }
+    ];
+
+    const preciosAggregados = await Precios.aggregate(pipeline);
+
+    const precio_medio = preciosAggregados.length > 0
+      ? parseFloat((preciosAggregados[0].precios.reduce((acc, curr) => acc + curr, 0) / preciosAggregados[0].precios.length))
+      : 0;
+
+    const precio_actual = preciosAggregados.length > 0 ? preciosAggregados[0].precio_actual : 0
+
+    const diferencia_porcentual = -1 * (((precio_medio * 100) / precio_actual) - 100);
+
+    const productoConPrecios = {
+      ...producto._doc,
+      precio_actual,
+      precio_medio,
+      diferencia_porcentual: parseFloat(diferencia_porcentual)
+    };
+
+    res.status(200).send(productoConPrecios);
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).send('Internal Server Error');
+  }
+};
 
 productoCtrl.getAllProduct = async (req, res) => {
   try {
-    // Obtener todos los productos y precios
-    const productos = await Productos.find({});
-    const precios = await Precios.find({});
-
-    // Organizar los precios por idProducto
-    const preciosPorProducto = {};
-    precios.forEach((precio) => {
-      if (!preciosPorProducto[precio.idProducto]) {
-        preciosPorProducto[precio.idProducto] = [];
-      }
-      preciosPorProducto[precio.idProducto].push(precio);
-    });
-
-    // Calcular precio_actual y precio_medio para cada producto
-    const productosConPrecios = productos.map((producto) => {
-      const preciosProducto = preciosPorProducto[producto._id] || [];
-
-      // Obtener el precio más reciente
-      const ultimoPrecio = preciosProducto.reduce((max, precio) =>
-        (new Date(precio.date) > new Date(max.date)) ? precio : max
-        , preciosProducto[0]);
-
-      // Calcular precio_medio
-      const precio_actual = ultimoPrecio ? ultimoPrecio.price : 0
-      const sumaPrecios = preciosProducto.reduce((suma, precio) => suma + precio.price, 0);
-      const precioMedio = preciosProducto.length ? sumaPrecios / preciosProducto.length : 0;
-      const diferencia_porcentual = -1 * (((precioMedio * 100) / precio_actual) - 100);
-
-      return {
-        ...producto.toObject(),
-        precio_actual: precio_actual,
-        precio_medio: parseFloat(precioMedio.toFixed(2)),
-        diferencia_porcentual: parseFloat(diferencia_porcentual.toFixed(2)),
-      };
-    });
+    // Agregación para obtener los productos con sus precios actuales y medios
+    const productosConPrecios = await Productos.aggregate([
+      {
+        $match: {
+          brand: {
+            $regex: marcasFiltradas.join('|'),
+            $options: 'i',
+          },
+        }
+      },
+      {
+        $lookup: {
+          from: "historicoprecios",
+          localField: "_id",
+          foreignField: "idProducto",
+          as: "historicoprecios",
+        },
+      },
+      {
+        $addFields: {
+          precio_actual: {
+            $let: {
+              vars: {
+                ultimoPrecio: {
+                  $arrayElemAt: [
+                    {
+                      $filter: {
+                        input: "$historicoprecios",
+                        as: "precio",
+                        cond: {
+                          $eq: ["$$precio.date", { $max: "$historicoprecios.date" }],
+                        },
+                      },
+                    },
+                    0,
+                  ],
+                },
+              },
+              in: "$$ultimoPrecio.price",
+            },
+          },
+          precio_medio: {
+            $avg: "$historicoprecios.price",
+          },
+          diferencia_porcentual: {
+            $multiply: [
+              {
+                $subtract: [{
+                  $divide: [
+                    {
+                      $multiply: [{ $avg: "$historicoprecios.price" }, 100]
+                    },
+                    {
+                      $let: {
+                        vars: {
+                          ultimoPrecio: {
+                            $arrayElemAt: [
+                              {
+                                $filter: {
+                                  input: "$historicoprecios",
+                                  as: "precio",
+                                  cond: {
+                                    $eq: ["$$precio.date", { $max: "$historicoprecios.date" }],
+                                  },
+                                },
+                              },
+                              0,
+                            ],
+                          },
+                        },
+                        in: "$$ultimoPrecio.price",
+                      }
+                    }
+                  ]
+                }, 100]
+              },
+              -1,
+            ],
+          },
+        },
+      },
+    ]);
 
     res.status(200).send(productosConPrecios);
   } catch (err) {
@@ -218,5 +242,6 @@ productoCtrl.getAllProduct = async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 };
+
 
 module.exports = productoCtrl;
