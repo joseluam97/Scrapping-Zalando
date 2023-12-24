@@ -4,6 +4,7 @@ import { NgFor, NgIf } from '@angular/common';
 import { PreciosService } from '../../services/precios.service';
 import { DataSharingService } from '../../services/data-sharing.service';
 import { ActivatedRoute } from '@angular/router';
+import { DetallesZapatosComponent } from '../detalles-zapatos/detalles-zapatos.component';
 
 @Component({
   selector: 'app-listado-precios',
@@ -25,7 +26,7 @@ export class ListadoPreciosComponent implements OnInit  {
     second: '2-digit'
   };
 
-  constructor(private preciosService: PreciosService, private dataSharingService: DataSharingService, private route: ActivatedRoute) {
+  constructor(private detallesZapatosComponent: DetallesZapatosComponent, private preciosService: PreciosService, private dataSharingService: DataSharingService, private route: ActivatedRoute) {
     
   }
 
@@ -38,18 +39,6 @@ export class ListadoPreciosComponent implements OnInit  {
     return formattedDate;
   }
 
-  getPricesByProductD(idZapato: string){
-
-    this.preciosService.getPricesByProduct(idZapato).subscribe(
-      (data: any) => {
-        this.preciosData = data;
-      },
-      (error) => {
-        console.error('Error:', error);
-      }
-    );
-  }
-
   ngOnDestroy() {
     // Importante: Desuscribirse al servicio al destruir el componente
     //this.dataSharingService.getZapatoSelected().unsubscribe();
@@ -57,11 +46,7 @@ export class ListadoPreciosComponent implements OnInit  {
 
 
   ngOnInit(){
-    this.route.params.subscribe(params => {
-      const id = params['id'];
-      
-      this.getPricesByProductD(id)
-    });
+    this.preciosData = this.detallesZapatosComponent.zapatoSelect.estadisticasPrecios.vectorPrecios;
   }
 
 }

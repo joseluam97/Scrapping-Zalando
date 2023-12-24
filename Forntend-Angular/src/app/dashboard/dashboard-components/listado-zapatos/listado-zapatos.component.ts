@@ -30,6 +30,8 @@ export class ListadoZapatosComponent implements OnInit {
 
   //VAriable de carga inicial
   cargaCompletada = false;
+  tallaSeleccionada = '';
+  infoPreciosTalla = false
 
   selected = '';
 
@@ -61,6 +63,25 @@ export class ListadoZapatosComponent implements OnInit {
   getAllZapatos() {
     //GET ALL ZAPATOS
     this.zapatosService.getZapatos().subscribe(
+      (data: any) => {
+        this.cargaCompletada = true
+
+        this.zapatosData = data;
+        
+        // Por ejemplo, cargar datos iniciales o hacer llamada a API aquí
+        this.filteredItems = data; // Supongamos que tienes una constante `items` con tus datos
+        this.updateDisplayedItems();
+
+      },
+      (error) => {
+        console.error('Error:', error);
+      }
+    );
+  }
+
+  getAllZapatosWithTalla() {
+    //GET ALL ZAPATOS
+    this.zapatosService.getZapatosWithTalla(this.tallaSeleccionada).subscribe(
       (data: any) => {
         this.cargaCompletada = true
 
@@ -121,6 +142,18 @@ export class ListadoZapatosComponent implements OnInit {
     const filterValue = value.toLowerCase();
 
     return this.allBrandData.filter(option => option.toLowerCase().includes(filterValue));
+  }
+
+  //Funcion de select de talla
+  onOptionTallaSelected(){
+    if(this.tallaSeleccionada == "" || this.tallaSeleccionada == undefined || this.tallaSeleccionada == null){
+      this.getAllZapatos()
+      this.infoPreciosTalla = false;
+    }
+    else{
+      this.getAllZapatosWithTalla();
+      this.infoPreciosTalla = true;
+    }
   }
 
   //Funciones de filtro superior

@@ -27,10 +27,7 @@ export class DetallesZapatosComponent{
   zapatoSelect: any
   listadoPrecios: any[] = [];
 
-  precioMasAlto: number = 0
-  precioMasBajo: number = 0
-  precioMedio: number = 0
-  nRegistros: number = 0
+  tallaZapato = "40"
 
   constructor(private router: Router, private zapatosService: ZapatosService, private preciosService: PreciosService, private dataSharingService: DataSharingService, private route: ActivatedRoute) { }
 
@@ -41,12 +38,11 @@ export class DetallesZapatosComponent{
       console.log('Valor del parámetro id:', id);
       
       this.getZapatoById(id)
-      this.getPricesByProductD(id)
     });
   }
 
   getZapatoById(idZapato: string){
-    this.zapatosService.getZapatoById(idZapato).subscribe(
+    this.zapatosService.getZapatoById(idZapato, this.tallaZapato).subscribe(
       (data: any) => {
         if(data != null){
           this.zapatoSelect = data;
@@ -61,53 +57,6 @@ export class DetallesZapatosComponent{
         this.router.navigate(['/']);
       }
     );
-  }
-
-  getPricesByProductD(idZapato: string){
-
-    this.preciosService.getPricesByProduct(idZapato).subscribe(
-      (data: any) => {
-        this.listadoPrecios = data;
-        this.obtenerValoresIndividualesPrecios(data)
-      },
-      (error) => {
-        console.error('Error:', error);
-      }
-    );
-  }
-
-  obtenerValoresIndividualesPrecios(listPrice: any[]){
-    //PRECIO MAS ALTO
-    let copyAlto = [...listPrice]
-    const maxPrice = copyAlto.reduce((max, item) => {
-      const price = parseFloat(item.price);
-      return !isNaN(price) && price > max ? price : max;
-    }, -Infinity);
-
-    this.precioMasAlto = maxPrice
-
-    //PRECIO MAS BAJO
-    let copyBajo = [...listPrice]
-    const minPrice = copyBajo.reduce((min, item) => {
-      const price = parseFloat(item.price);
-      return !isNaN(price) && price < min ? price : min;
-    }, Infinity);
-
-    this.precioMasBajo = minPrice
-
-    //PRECIO MEDIO
-    let copyMedia = [...listPrice]
-    const prices = copyMedia.map(item => parseFloat(item.price)).filter(price => !isNaN(price));
-
-    if (prices.length != 0) {
-      const sum = prices.reduce((total, price) => total + price, 0);
-      const average = sum / prices.length;
-
-      this.precioMedio = average
-    }
-
-    //NUMERO DE REGISTROS
-    this.nRegistros = listPrice.length
   }
 
 }

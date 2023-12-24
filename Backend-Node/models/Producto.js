@@ -1,7 +1,15 @@
 const mongoose = require('mongoose');
 
 const itemSchema = new mongoose.Schema({
+    id_zalando:{
+        type: String,
+        required: true,
+    },
     name:{
+        type: String,
+        required: true,
+    },
+    color:{
         type: String,
         required: true,
     },

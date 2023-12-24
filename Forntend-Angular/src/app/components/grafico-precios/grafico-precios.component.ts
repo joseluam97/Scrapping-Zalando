@@ -18,6 +18,7 @@ import {
 import { DemoMaterialModule } from "src/app/demo-material-module";
 import { DataSharingService } from "src/app/services/data-sharing.service";
 import { PreciosService } from "src/app/services/precios.service";
+import { DetallesZapatosComponent } from "../detalles-zapatos/detalles-zapatos.component";
 
 export interface ChartOptions {
   series: ApexAxisChartSeries | any;
@@ -46,9 +47,8 @@ export class GraficoPreciosComponent implements OnInit {
   public chartOptions: Partial<ChartOptions>;
 
   zapatoSelected: any = "";
-  preciosData: any[] = [];
 
-  constructor(private preciosService: PreciosService, private dataSharingService: DataSharingService, private route: ActivatedRoute) {
+  constructor(private detallesZapatosComponent: DetallesZapatosComponent, private preciosService: PreciosService, private dataSharingService: DataSharingService, private route: ActivatedRoute) {
     this.chartOptions = {};
   }
 
@@ -108,46 +108,36 @@ export class GraficoPreciosComponent implements OnInit {
     };
   }
 
-  getPricesByProductD(idZapato: string){
+  setDataToChart(){
 
-    this.preciosService.getPricesByProduct(idZapato).subscribe(
-      (data: any) => {
-        this.preciosData = data;
+    let preciosData = this.detallesZapatosComponent.zapatoSelect.estadisticasPrecios.vectorPrecios;
 
-        let newData = [...data]
+    let newData = [...preciosData]
 
-        let vectorPrecios: any = []
-        let vectorFechas: any = []
+    let vectorPrecios: any = []
+    let vectorFechas: any = []
 
-        //Ordena el vector por fechas
-        newData.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    //Ordena el vector por fechas
+    newData.sort((a, b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime());
 
-        //Obtiene los valores buscados en el grafico
-        newData.map(elemento => {
-          //PRECIO
-          vectorPrecios.push(elemento['price'])
+    //Obtiene los valores buscados en el grafico
+    newData.map(elemento => {
+      //PRECIO
+      vectorPrecios.push(elemento['precio'])
 
-          //FECHA
-          const dateObject = new Date(elemento['date']);
-          const formattedDate = dateObject.toLocaleDateString('es-ES', this.optionsDate);
+      //FECHA
+      const dateObject = new Date(elemento['fecha']);
+      const formattedDate = dateObject.toLocaleDateString('es-ES', this.optionsDate);
 
-          vectorFechas.push(formattedDate)
-        })
+      vectorFechas.push(formattedDate)
+    })
 
-        this.completarOpcionesGrafico(vectorPrecios, vectorFechas)
-      },
-      (error) => {
-        console.error('Error:', error);
-      }
-    );
+    this.completarOpcionesGrafico(vectorPrecios, vectorFechas)
+
   }
 
   ngOnInit(){
-    this.route.params.subscribe(params => {
-      const id = params['id'];
-      
-      this.getPricesByProductD(id)
-    });
+      this.setDataToChart();
   }
 
 }

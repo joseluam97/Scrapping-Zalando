@@ -7,14 +7,24 @@
     <div class="filters">
         <div class="row">
 
-            <div class="col-lg-4 col-sm-12">
+            <div class="col-lg-3 col-sm-12">
+                <mat-form-field>
+                    <mat-label>Talla</mat-label>
+                    <mat-select [(value)]="tallaSeleccionada" (selectionChange)="onOptionTallaSelected()">
+                        <mat-option></mat-option>
+                        <mat-option value="40">40</mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+
+            <div class="col-lg-3 col-sm-12">
                 <mat-form-field>
                     <mat-label>Nombre</mat-label>
                     <input matInput (input)="onInputChanged($event)">
                 </mat-form-field>
             </div>
 
-            <div class="col-lg-4 col-sm-12">
+            <div class="col-lg-3 col-sm-12">
                 <mat-form-field class="example-full-width">
                     <mat-label>Marca</mat-label>
                     <input type="text" aria-label="Number" matInput formControl="marcaControl" [matAutocomplete]="auto">
@@ -30,7 +40,7 @@
                 </mat-form-field>
             </div>
 
-            <div class="col-lg-4 col-sm-12">
+            <div class="col-lg-3 col-sm-12">
                 <mat-form-field>
                     <mat-label>Otros Filtros</mat-label>
                     <mat-select [(value)]="selected" (selectionChange)="onOptionOtrosSelected()">
@@ -49,23 +59,23 @@
             <mat-card class="example-card">
                 <mat-card-header>
                     <mat-card-title-group>
-                        <mat-card-subtitle>
+                        <mat-card-title>
                             {{zapato.name}}
-                        </mat-card-subtitle>
-                        <mat-card-subtitle>
-                            <small class="text-muted">{{zapato.brand}}</small>
-                        </mat-card-subtitle>
-                        <!--<mat-card-subtitle>
-                        <button mat-button>
-                            <a href={{zapato.link}} mat-raised-button color="primary">Visitar Zalando</a>
-                        </button>
-                    </mat-card-subtitle>-->
-
+                        </mat-card-title>
                         <mat-card-subtitle>
                             <div>
+                                <small class="text-muted">{{zapato.brand}}</small>
+                            </div>
+                            <div>
+                                <small class="text-muted">Color: {{zapato.color}}</small>
+                            </div>
+                        </mat-card-subtitle>
+
+                        <mat-card-subtitle *ngIf="infoPreciosTalla == true">
+                            <div>
                                 <h4>
-                                    {{zapato.precio_actual}}€ <small
-                                        class="text-muted">{{zapato.diferencia_porcentual.toFixed(2)}}%</small>
+                                    {{zapato.precio_actual_talla}}€ <small
+                                        class="text-muted">{{zapato.porcentaje_cambio}}%</small>
                                 </h4>
                             </div>
 

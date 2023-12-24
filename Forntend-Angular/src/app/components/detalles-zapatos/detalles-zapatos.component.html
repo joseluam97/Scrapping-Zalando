@@ -3,15 +3,23 @@
         <mat-card class="example-card">
             <mat-card-header>
                 <mat-card-title-group>
-                    <mat-card-title>{{zapatoSelect.name}}</mat-card-title>
+                    <mat-card-title>{{zapatoSelect.producto.name}}</mat-card-title>
                     <mat-card-subtitle>
                         {{zapatoSelect.brand}}
+                    </mat-card-subtitle>
+                    <mat-card-subtitle>
+                        <div>
+                            <small class="text-muted">{{zapatoSelect.producto.brand}}</small>
+                        </div>
+                        <div>
+                            <small class="text-muted">Color: {{zapatoSelect.producto.color}}</small>
+                        </div>
                     </mat-card-subtitle>
 
                     <mat-card-subtitle>
                         <div>
                             <h4>
-                                {{zapatoSelect.precio_actual}}€ <small class="text-muted">{{zapatoSelect.diferencia_porcentual.toFixed(2)}}%</small>
+                                {{zapatoSelect.estadisticasPrecios.precioActual}}€ <small class="text-muted">{{zapatoSelect.estadisticasPrecios.porcentajeCambio}}%</small>
                             </h4>
                         </div>
                         
@@ -19,11 +27,11 @@
 
                     <mat-card-subtitle>
                         <button mat-button>
-                            <a href={{zapatoSelect.link}} mat-raised-button color="primary">Visitar Zalando</a>
+                            <a href={{zapatoSelect.producto.link}} mat-raised-button color="primary">Visitar Zalando</a>
                         </button>
                     </mat-card-subtitle>
                     
-                    <img class="image-card" mat-card-image src={{zapatoSelect.imagen}} alt="Zapato">
+                    <img class="image-card" mat-card-image src={{zapatoSelect.producto.imagen}} alt="Zapato">
                 </mat-card-title-group>
             </mat-card-header>
 
@@ -37,7 +45,7 @@
     <div class="col-lg-3 col-sm-12">
         <mat-card class="custom-card-red">
             <mat-card-content class="card-content">
-                <div class="number">{{precioMasAlto}} €</div>
+                <div class="number">{{zapatoSelect.estadisticasPrecios.precioMaximo}} €</div>
                 <div class="title">Precio mas alto</div>
             </mat-card-content>
         </mat-card>
@@ -46,7 +54,7 @@
     <div class="col-lg-3 col-sm-12">
         <mat-card class="custom-card-green">
             <mat-card-content class="card-content">
-                <div class="number">{{precioMasBajo}} €</div>
+                <div class="number">{{zapatoSelect.estadisticasPrecios.precioMinimo}} €</div>
                 <div class="title">Precio mas bajo</div>
             </mat-card-content>
         </mat-card>
@@ -55,7 +63,7 @@
     <div class="col-lg-3 col-sm-12">
         <mat-card class="custom-card-blue">
             <mat-card-content class="card-content">
-                <div class="number">{{precioMedio.toFixed(2)}} €</div>
+                <div class="number">{{zapatoSelect.estadisticasPrecios.precioMedio}} €</div>
                 <div class="title">Precio medio</div>
             </mat-card-content>
         </mat-card>
@@ -64,7 +72,7 @@
     <div class="col-lg-3 col-sm-12">
         <mat-card class="custom-card-blue">
             <mat-card-content class="card-content">
-                <div class="number">{{nRegistros}}</div>
+                <div class="number">{{zapatoSelect.estadisticasPrecios.numeroRegistros}}</div>
                 <div class="title">Registros de precios</div>
             </mat-card-content>
         </mat-card>

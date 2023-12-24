@@ -27,28 +27,32 @@ historicoPreciosCtrl.getPricesByProduct = async(req, res) => {
 
 historicoPreciosCtrl.postHistoricoPrecios = async (req, res) => {
   console.log(req.body);
-  const { idProducto, price } = req.body;
+  const { idProducto, price, talla, disponible} = req.body;
 
   try {
-    // Verificar si existe un precio con la misma fecha y el mismo price
-    const existingPrice = await HistoricoPrecios.findOne({
+    // Obtener la fecha y hora actual
+    const fechaActual = new Date();
+
+    // Verificar si ya existe un precio registrado para el mismo día
+    const precioExistente = await HistoricoPrecios.findOne({
       idProducto,
-      price,
+      talla,
       date: {
-        $gte: new Date(new Date().setHours(0, 0, 0)), // Fecha de inicio del día actual
-        $lt: new Date(new Date().setHours(23, 59, 59)), // Fecha de fin del día actual
+        $gte: new Date(fechaActual.getFullYear(), fechaActual.getMonth(), fechaActual.getDate(), 0, 0, 0),
+        $lt: new Date(fechaActual.getFullYear(), fechaActual.getMonth(), fechaActual.getDate() + 1, 0, 0, 0),
       },
     });
 
-    if (existingPrice) {
-      res.status(400).json({ message: "El precio no ha cambiado" });
-      return;
+    if (precioExistente) {
+      return res.status(400).json({ error: 'Ya existe un precio registrado para el día actual.' });
     }
 
     const historicoPrecios = new HistoricoPrecios({
       idProducto,
+      talla,
       price,
       date: new Date(),
+      disponible,
     });
 
     const newHistoricoPrecios = await historicoPrecios.save();
@@ -87,6 +91,12 @@ historicoPreciosCtrl.putHistoricoPrecios = async (req, res) => {
 		}
     if (req.body.date) {
 			post.date = req.body.date
+		}
+    if (req.body.talla) {
+			post.talla = req.body.talla
+		}
+    if (req.body.disponible) {
+			post.disponible = req.body.disponible
 		}
 
 		await post.save()

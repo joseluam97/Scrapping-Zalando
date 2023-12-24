@@ -19,11 +19,13 @@ router.post("/byName", function (req, res) {
 });
 
 router.get('/', producto.getAllProduct);
-router.get('/:id', producto.getProductoById);
+router.get('/byIdZalando/:id_zalando', producto.getProductoByIdZalando);
 router.post('/', producto.postProducto);
 router.put("/:id", producto.putProducto);
 router.post('/allBrand', producto.getAllBrand);
 router.post('/getBestOffertByBrand', producto.getBestOffertByBrand);
+router.get('/checkProductHavePrices/', producto.getCheckProductHavePrices);
+router.get('/:id', producto.getProductoById);
 
 router.delete("/:id", function (req, res) {
   const { id } = req.params;

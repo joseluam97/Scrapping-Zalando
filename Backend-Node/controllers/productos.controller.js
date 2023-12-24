@@ -55,10 +55,27 @@ productoCtrl.getAllBrand = async (req, res) => {
 
 };
 
+
+productoCtrl.getProductoByIdZalando = async (req, res) => {
+
+  const id_producto_zalando = req.params.id_zalando;
+
+  const productoFind = await Productos.findOne({ id_zalando: id_producto_zalando })
+
+  if (productoFind == null) {
+    res.status(200).json({});
+  } else {
+    res.status(200).json(productoFind);
+  }
+
+};
+
 productoCtrl.postProducto = async (req, res) => {
   console.log(req.body);
   const producto = new Productos({
+    id_zalando: req.body.id_zalando,
     name: req.body.name,
+    color: req.body.color,
     brand: req.body.brand,
     imagen: req.body.imagen,
     link: req.body.link,
@@ -76,8 +93,14 @@ productoCtrl.putProducto = async (req, res) => {
   try {
     const post = await Productos.findOne({ _id: req.params.id })
 
+    if (req.body.id_zalando) {
+      post.id_zalando = req.body.id_zalando
+    }
     if (req.body.name) {
       post.name = req.body.name
+    }
+    if (req.body.color) {
+      post.color = req.body.color
     }
     if (req.body.brand) {
       post.brand = req.body.brand
@@ -99,52 +122,62 @@ productoCtrl.putProducto = async (req, res) => {
 
 productoCtrl.getProductoById = async (req, res) => {
   try {
-    const { id } = req.params;
+    const idProducto = req.params.id;
+    const tallaProvided = req.query.talla;
 
-    const producto = await Productos.findById(id);
+    if(tallaProvided == undefined || tallaProvided == ""){
+      return res.status(404).json({ error: 'Debe proporcionar una talla' });
+    }
 
-    const pipeline = [
-      {
-        $match: {
-          idProducto: ObjectId(id)
-        }
+    // Obtener información básica del producto
+    const producto = await Productos.findById(idProducto);
+
+    if (!producto) {
+      return res.status(404).json({ error: 'Producto no encontrado' });
+    }
+
+    // Utilizar el modelo HistoricoPrecio para realizar la consulta
+    const precios = await Precios.find({
+      idProducto,
+      talla: tallaProvided,
+    }).sort({ date: -1 }); // Ordenar por fecha descendente para obtener el precio más reciente primero
+
+    if (precios.length === 0) {
+      return res.status(404).json({ error: 'No hay registros de precios para el producto y talla proporcionados' });
+    }
+
+    // Obtener el precio actual (más reciente)
+    const precioActual = precios[0].price;
+
+    // Formatear el vector de precios con fecha y precio
+    const vectorPrecios = precios.map(precio => ({ fecha: precio.date, precio: precio.price }));
+
+    // Calcular estadísticas de precios
+    const precioMaximo = Math.max(...precios.map(precio => precio.price));
+    const precioMinimo = Math.min(...precios.map(precio => precio.price));
+    const precioMedio = precios.reduce((sum, precio) => sum + precio.price, 0) / precios.length;
+
+    // Calcular porcentaje de cambio, manejando la posibilidad de que el precio medio sea cero
+    let porcentajeCambio = 0
+    if(precioActual != precioMedio){
+      porcentajeCambio = (precioActual - precioMedio)/(precioMedio*100)
+    }
+    
+    const respuesta = {
+      producto,
+      estadisticasPrecios: {
+        precioActual,
+        porcentajeCambio,
+        precioMaximo,
+        precioMinimo,
+        precioMedio,
+        numeroRegistros: precios.length,
+        vectorPrecios,
       },
-      {
-        $sort: {
-          date: -1
-        }
-      },
-      {
-        $group: {
-          _id: "$idProducto",
-          precio_actual: {
-            $first: "$price"
-          },
-          precios: {
-            $push: "$price"
-          }
-        }
-      }
-    ];
-
-    const preciosAggregados = await Precios.aggregate(pipeline);
-
-    const precio_medio = preciosAggregados.length > 0
-      ? parseFloat((preciosAggregados[0].precios.reduce((acc, curr) => acc + curr, 0) / preciosAggregados[0].precios.length))
-      : 0;
-
-    const precio_actual = preciosAggregados.length > 0 ? preciosAggregados[0].precio_actual : 0
-
-    const diferencia_porcentual = -1 * (((precio_medio * 100) / precio_actual) - 100);
-
-    const productoConPrecios = {
-      ...producto._doc,
-      precio_actual,
-      precio_medio,
-      diferencia_porcentual: parseFloat(diferencia_porcentual)
     };
 
-    res.status(200).send(productoConPrecios);
+    res.json(respuesta);
+
   } catch (error) {
     console.error('Error:', error);
     res.status(500).send('Internal Server Error');
@@ -154,87 +187,76 @@ productoCtrl.getProductoById = async (req, res) => {
 productoCtrl.getAllProduct = async (req, res) => {
   try {
     // Agregación para obtener los productos con sus precios actuales y medios
-    const productosConPrecios = await Productos.aggregate([
-      {
-        $match: {
-          brand: {
-            $regex: marcasFiltradas.join('|'),
-            $options: 'i',
+    const tallaProvided = req.query.talla;
+
+    let productosConPrecios = [];
+
+    if(tallaProvided == undefined){
+      productosConPrecios = await Productos.find({})
+    }
+    else{
+      productosConPrecios = await Precios.aggregate([
+        {
+          $match: {
+            talla: tallaProvided,
           },
-        }
-      },
-      {
-        $lookup: {
-          from: "historicoprecios",
-          localField: "_id",
-          foreignField: "idProducto",
-          as: "historicoprecios",
         },
-      },
-      {
-        $addFields: {
-          precio_actual: {
-            $let: {
-              vars: {
-                ultimoPrecio: {
-                  $arrayElemAt: [
+        {
+          $sort: {
+            date: -1,
+          },
+        },
+        {
+          $group: {
+            _id: '$idProducto',
+            precio_actual_talla: { $first: '$price' },
+            disponible: { $first: '$disponible' },
+            precios: { $push: '$price' }, // Agregar todos los precios a un array
+          },
+        },
+        {
+          $lookup: {
+            from: 'productos', // Nombre de la colección de productos
+            localField: '_id',
+            foreignField: '_id',
+            as: 'producto',
+          },
+        },
+        {
+          $unwind: '$producto',
+        },
+        {
+          $project: {
+            _id: '$producto._id',
+            name: '$producto.name',
+            color: '$producto.color',
+            brand: '$producto.brand',
+            imagen: '$producto.imagen',
+            link: '$producto.link',
+            precio_actual_talla: 1,
+            disponible: 1,
+            precio_medio: { $avg: '$precios' }, // Calcular el precio medio
+            porcentaje_cambio: {
+              $cond: {
+                if: { $ne: [{ $avg: '$precios' }, 0] }, // Evitar la división por cero
+                then: {
+                  $multiply: [
                     {
-                      $filter: {
-                        input: "$historicoprecios",
-                        as: "precio",
-                        cond: {
-                          $eq: ["$$precio.date", { $max: "$historicoprecios.date" }],
-                        },
-                      },
+                      $divide: [
+                        { $subtract: ['$precio_actual_talla', { $avg: '$precios' }] },
+                        { $avg: '$precios' },
+                      ],
                     },
-                    0,
+                    100,
                   ],
                 },
+                else: 0, // En caso de división por cero, establecer el porcentaje a 0
               },
-              in: "$$ultimoPrecio.price",
             },
           },
-          precio_medio: {
-            $avg: "$historicoprecios.price",
-          },
-          diferencia_porcentual: {
-            $multiply: [
-              {
-                $subtract: [{
-                  $divide: [
-                    {
-                      $multiply: [{ $avg: "$historicoprecios.price" }, 100]
-                    },
-                    {
-                      $let: {
-                        vars: {
-                          ultimoPrecio: {
-                            $arrayElemAt: [
-                              {
-                                $filter: {
-                                  input: "$historicoprecios",
-                                  as: "precio",
-                                  cond: {
-                                    $eq: ["$$precio.date", { $max: "$historicoprecios.date" }],
-                                  },
-                                },
-                              },
-                              0,
-                            ],
-                          },
-                        },
-                        in: "$$ultimoPrecio.price",
-                      }
-                    }
-                  ]
-                }, 100]
-              },
-              -1,
-            ],
-          },
         },
-      },
-    ]);
+      ]);
+    }
 
     res.status(200).send(productosConPrecios);
   } catch (err) {
@@ -243,5 +265,34 @@ productoCtrl.getAllProduct = async (req, res) => {
   }
 };
 
+productoCtrl.getCheckProductHavePrices = async (req, res) => {
+  try {
+    // Obtener la fecha y hora actual
+    const fechaActual = new Date();
+
+    // Convertir la fecha a un rango para el día actual
+    const inicioDia = new Date(fechaActual.getFullYear(), fechaActual.getMonth(), fechaActual.getDate(), 0, 0, 0);
+    const finDia = new Date(fechaActual.getFullYear(), fechaActual.getMonth(), fechaActual.getDate() + 1, 0, 0, 0);
+
+    // Obtener productos que NO tienen un precio para el día actual
+    const productosSinPrecioHoy = await Productos.find({
+      _id: {
+        $nin: await Precios.distinct('idProducto', {
+          date: {
+            $gte: inicioDia,
+            $lt: finDia,
+          },
+        }),
+      },
+    });
+
+    console.log("Hay un total de " +productosSinPrecioHoy.length+ " productos sin precio a dia de hoy.")
+
+    res.status(200).send(productosSinPrecioHoy);
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).send('Internal Server Error');
+  }
+};
 
 module.exports = productoCtrl;

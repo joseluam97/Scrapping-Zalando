@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -14,8 +14,18 @@ export class ZapatosService {
     return this.http.get(this.apiUrl);
   }
 
-  getZapatoById(idZapato: string): Observable<any> {
-    return this.http.get(this.apiUrl + idZapato);
+  getZapatosWithTalla(tallaZapato: string): Observable<any> {
+    // Construir los parámetros de la consulta
+    const params = new HttpParams().set('talla', tallaZapato);
+    
+    return this.http.get(this.apiUrl, { params });
+  }
+
+  getZapatoById(idZapato: string, tallaZapato: string): Observable<any> {
+    // Construir los parámetros de la consulta
+    const params = new HttpParams().set('talla', tallaZapato);
+
+    return this.http.get(this.apiUrl + idZapato, { params });
   }
 
   getAllBrand(): Observable<any> {

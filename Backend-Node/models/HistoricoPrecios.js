@@ -5,6 +5,10 @@ const itemSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Productos",
     },
+    talla:{
+        type: String,
+        required: false,
+    },
     price:{
         type: Number,
         required: false,
@@ -12,6 +16,10 @@ const itemSchema = new mongoose.Schema({
     date:{
         type: Date,
         required: true,
+    },
+    disponible:{
+        type: Boolean,
+        required: false,
     },
 
 });
