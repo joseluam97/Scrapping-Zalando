@@ -3,35 +3,45 @@
         <mat-card class="example-card">
             <mat-card-header>
                 <mat-card-title-group>
-                    <mat-card-title>{{zapatoSelect.producto.name}}</mat-card-title>
-                    <mat-card-subtitle>
-                        {{zapatoSelect.brand}}
-                    </mat-card-subtitle>
+                    <mat-card-title>
+                        <div class="row">
+                            <div class="col-lg-10 col-sm-12">
+                                {{zapatoSelect?.producto.name}}
+                            </div>
+                            <div class="col-lg-2 col-sm-12">
+                                <button mat-button>
+                                    <a href={{zapatoSelect?.producto.link}} mat-raised-button color="primary">Zalando</a>
+                                </button>
+                            </div>
+                        </div>
+                    </mat-card-title>
+                    
                     <mat-card-subtitle>
                         <div>
-                            <small class="text-muted">{{zapatoSelect.producto.brand}}</small>
+                            <small class="text-muted">Marca: </small>{{zapatoSelect?.producto.brand}}
                         </div>
                         <div>
-                            <small class="text-muted">Color: {{zapatoSelect.producto.color}}</small>
+                            <small class="text-muted">Color: </small>{{zapatoSelect?.producto.color}}
                         </div>
-                    </mat-card-subtitle>
+                        <div>
+                            <small class="text-muted">Precio Actual: </small>{{zapatoSelect?.estadisticasPrecios.precioActual}}€
+                        </div>
+                        <div>
+                            <small class="text-muted">Diferencia con respecto a precio medio: </small>{{zapatoSelect?.estadisticasPrecios.porcentajeCambio}}%
+                        </div>
 
-                    <mat-card-subtitle>
-                        <div>
-                            <h4>
-                                {{zapatoSelect.estadisticasPrecios.precioActual}}€ <small class="text-muted">{{zapatoSelect.estadisticasPrecios.porcentajeCambio}}%</small>
-                            </h4>
-                        </div>
-                        
-                    </mat-card-subtitle>
-
-                    <mat-card-subtitle>
-                        <button mat-button>
-                            <a href={{zapatoSelect.producto.link}} mat-raised-button color="primary">Visitar Zalando</a>
-                        </button>
+                        <mat-form-field>
+                            <mat-label>Talla</mat-label>
+                            <mat-select [(value)]="tallaSeleccionada" (selectionChange)="onOptionTallaSelected()">
+                                <mat-option *ngFor="let option of allSizesProducto" [value]="option">
+                                    {{option}}
+                                </mat-option>
+                
+                            </mat-select>
+                        </mat-form-field>
                     </mat-card-subtitle>
                     
-                    <img class="image-card" mat-card-image src={{zapatoSelect.producto.imagen}} alt="Zapato">
+                    <img class="image-card" mat-card-image src={{zapatoSelect?.producto.imagen}} alt="Zapato">
                 </mat-card-title-group>
             </mat-card-header>
 
@@ -45,7 +55,7 @@
     <div class="col-lg-3 col-sm-12">
         <mat-card class="custom-card-red">
             <mat-card-content class="card-content">
-                <div class="number">{{zapatoSelect.estadisticasPrecios.precioMaximo}} €</div>
+                <div class="number">{{zapatoSelect?.estadisticasPrecios.precioMaximo}} €</div>
                 <div class="title">Precio mas alto</div>
             </mat-card-content>
         </mat-card>
@@ -54,7 +64,7 @@
     <div class="col-lg-3 col-sm-12">
         <mat-card class="custom-card-green">
             <mat-card-content class="card-content">
-                <div class="number">{{zapatoSelect.estadisticasPrecios.precioMinimo}} €</div>
+                <div class="number">{{zapatoSelect?.estadisticasPrecios.precioMinimo}} €</div>
                 <div class="title">Precio mas bajo</div>
             </mat-card-content>
         </mat-card>
@@ -63,7 +73,7 @@
     <div class="col-lg-3 col-sm-12">
         <mat-card class="custom-card-blue">
             <mat-card-content class="card-content">
-                <div class="number">{{zapatoSelect.estadisticasPrecios.precioMedio}} €</div>
+                <div class="number">{{zapatoSelect?.estadisticasPrecios.precioMedio}} €</div>
                 <div class="title">Precio medio</div>
             </mat-card-content>
         </mat-card>
@@ -72,7 +82,7 @@
     <div class="col-lg-3 col-sm-12">
         <mat-card class="custom-card-blue">
             <mat-card-content class="card-content">
-                <div class="number">{{zapatoSelect.estadisticasPrecios.numeroRegistros}}</div>
+                <div class="number">{{zapatoSelect?.estadisticasPrecios.numeroRegistros}}</div>
                 <div class="title">Registros de precios</div>
             </mat-card-content>
         </mat-card>
@@ -81,17 +91,12 @@
 
 <div class="row">
 
-    <!-- column -->
     <div class="col-lg-6 col-sm-12">
-        <app-listado-precios></app-listado-precios>
+        <app-listado-precios [data]="zapatoSelect?.estadisticasPrecios?.vectorPrecios"></app-listado-precios>
     </div>
-    <!-- column -->
-
-    <!-- column -->
     <div class="col-lg-6 col-sm-12">
-        <app-grafico-precios></app-grafico-precios>
+        <app-grafico-precios [data]="zapatoSelect?.estadisticasPrecios?.vectorPrecios"></app-grafico-precios>
     </div>
-    <!-- column -->
 
 
 </div>

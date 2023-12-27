@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from "@angular/core";
+import { Component, OnInit, Input, ViewChild, SimpleChanges, OnChanges } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import {
   ApexAxisChartSeries,
@@ -42,7 +42,10 @@ export interface ChartOptions {
   imports: [NgApexchartsModule, DemoMaterialModule],
   templateUrl: "./grafico-precios.component.html"
 })
-export class GraficoPreciosComponent implements OnInit {
+export class GraficoPreciosComponent implements OnInit, OnChanges {
+
+  @Input() data: any;
+
   @ViewChild("chart") chart: ChartComponent = Object.create(null);
   public chartOptions: Partial<ChartOptions>;
 
@@ -136,8 +139,12 @@ export class GraficoPreciosComponent implements OnInit {
 
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    this.setDataToChart();
+  }
+
   ngOnInit(){
-      this.setDataToChart();
+    //this.setDataToChart();
   }
 
 }

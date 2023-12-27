@@ -8,7 +8,7 @@ export interface Menu {
 }
 
 const MENUITEMS = [
-  { state: 'dashboard', name: 'Listado de Zapatos', type: 'link', icon: 'view_module' },
+  { state: 'listado', name: 'Listado de Zapatos', type: 'link', icon: 'view_module' },
   {
     state: 'mis-favoritos',
     type: 'link',

@@ -1,0 +1,41 @@
+.image-card {
+    width: auto;
+    height: 125px;
+}
+  
+.spinner_centrado{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.full-image-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    cursor: pointer;
+  }
+  
+  .full-image {
+    max-width: 90%;
+    max-height: 90%;
+  }
+  
+  /* Opcional: Para centrar la imagen en la vista en grande */
+  .full-image-overlay img {
+    display: block;
+    margin: 0 auto;
+  }

@@ -31,5 +31,14 @@ export class ZapatosService {
   getAllBrand(): Observable<any> {
     return this.http.post(this.apiUrl + "allBrand", {});
   }
+
+  getAllSizes(): Observable<any> {
+    return this.http.get(this.apiUrl + "allSize", {});
+  }
+
+  getSizesByProducto(idZapato: string): Observable<any> {
+    return this.http.get(this.apiUrl + "allSizeByZapato/" + idZapato, {});
+  }
+
 }
 

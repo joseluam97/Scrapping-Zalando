@@ -12,7 +12,9 @@ import { DetallesZapatosComponent } from '../detalles-zapatos/detalles-zapatos.c
   imports: [DemoMaterialModule, NgIf, NgFor],
   templateUrl: './listado-precios.component.html'
 })
-export class ListadoPreciosComponent implements OnInit  {
+export class ListadoPreciosComponent implements OnInit, OnChanges {
+
+  @Input() data: any;
 
   zapatoSelected: any = "";
   preciosData: any[] = [];
@@ -44,9 +46,11 @@ export class ListadoPreciosComponent implements OnInit  {
     //this.dataSharingService.getZapatoSelected().unsubscribe();
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    this.preciosData = this.detallesZapatosComponent.zapatoSelect.estadisticasPrecios.vectorPrecios;
+  }
 
   ngOnInit(){
-    this.preciosData = this.detallesZapatosComponent.zapatoSelect.estadisticasPrecios.vectorPrecios;
   }
 
 }

@@ -55,6 +55,23 @@ productoCtrl.getAllBrand = async (req, res) => {
 
 };
 
+productoCtrl.getAllSize = async (req, res) => {
+
+  const tallasUnicas = await Precios.distinct("talla", {});
+
+  res.status(200).send(tallasUnicas);
+
+};
+
+productoCtrl.getSizesByProducto = async (req, res) => {
+  
+  const idProducto_ = req.params.id;
+
+  const tallasUnicas = await Precios.find({ idProducto: idProducto_ }).distinct("talla", {});
+
+  res.status(200).send(tallasUnicas);
+
+};
 
 productoCtrl.getProductoByIdZalando = async (req, res) => {
 
@@ -155,12 +172,14 @@ productoCtrl.getProductoById = async (req, res) => {
     // Calcular estadísticas de precios
     const precioMaximo = Math.max(...precios.map(precio => precio.price));
     const precioMinimo = Math.min(...precios.map(precio => precio.price));
-    const precioMedio = precios.reduce((sum, precio) => sum + precio.price, 0) / precios.length;
+    let precioMedio = precios.reduce((sum, precio) => sum + precio.price, 0) / precios.length;
+    precioMedio = precioMedio.toFixed(2);
 
     // Calcular porcentaje de cambio, manejando la posibilidad de que el precio medio sea cero
     let porcentajeCambio = 0
     if(precioActual != precioMedio){
-      porcentajeCambio = (precioActual - precioMedio)/(precioMedio*100)
+      porcentajeCambio = -1 * (100  - ((precioActual * 100) / precioMedio))
+      porcentajeCambio = porcentajeCambio.toFixed(2);
     }
     
     const respuesta = {

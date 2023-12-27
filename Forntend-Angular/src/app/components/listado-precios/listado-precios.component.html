@@ -5,16 +5,22 @@
             <mat-card-title>Historico de precio</mat-card-title>
         </div>
 
-        <div *ngFor='let precio of preciosData'>
-            <div class="row">
-                <div class="col-lg-6 col-sm-12">
-                    <p class="text-muted">{{formatDate(precio.fecha)}}</p>
-                </div>
-                <div class="col-lg-6 col-sm-12">
-                    <p class="text-muted">{{precio.precio}} €</p>
-                </div>
-            </div>
+        <div *ngIf="preciosData.length == 0">
+            <span>No hay registros de este de precio para esta talla</span>
+        </div>
 
+        <div *ngIf="preciosData.length != 0">
+            <div *ngFor='let precio of preciosData'>
+                <div class="row">
+                    <div class="col-lg-6 col-sm-12">
+                        <p class="text-muted">{{formatDate(precio.fecha)}}</p>
+                    </div>
+                    <div class="col-lg-6 col-sm-12">
+                        <p class="text-muted">{{precio.precio}} €</p>
+                    </div>
+                </div>
+
+            </div>
         </div>
     </mat-card-content>
 </mat-card>

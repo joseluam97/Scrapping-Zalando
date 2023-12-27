@@ -25,6 +25,8 @@ router.put("/:id", producto.putProducto);
 router.post('/allBrand', producto.getAllBrand);
 router.post('/getBestOffertByBrand', producto.getBestOffertByBrand);
 router.get('/checkProductHavePrices/', producto.getCheckProductHavePrices);
+router.get('/allSize/', producto.getAllSize);
+router.get('/allSizeByZapato/:id', producto.getSizesByProducto);
 router.get('/:id', producto.getProductoById);
 
 router.delete("/:id", function (req, res) {

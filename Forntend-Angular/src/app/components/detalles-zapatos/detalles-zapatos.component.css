@@ -1,5 +1,9 @@
+.row{
+    width: 100%;
+}
+
 .image-card {
-    max-width: 100px;
+    max-width: 150px;
     height: auto;
     margin-bottom: 15px;
 }
